@@ -2,41 +2,78 @@ import java.util.Random;
 
 public class SudokuGenerator {
 
+    // المتغيّر لحساب عدد الحلول
+    private static int solutionCount;
+
     public static SudokuCell[][] generateBoard(int difficultyLevel) {
         SudokuCell[][] board = new SudokuCell[9][9];
 
-        // تعبئة الخلايا بصفر (قيمة افتراضية)
+        // تهيئة الخلايا
         for (int i = 0; i < 9; i++) {
             for (int j = 0; j < 9; j++) {
                 board[i][j] = new SudokuCell(0, false);
             }
         }
 
-        int cellsToFill;
+        // تعبئة اللوحة بالكامل
+        fillBoard(board, 0, 0);
 
-        // تحديد عدد الخلايا حسب الصعوبة
-        switch (  difficultyLevel) {
-             case 1: cellsToFill = 50; break; // Easy
-            case 2: cellsToFill = 30; break; // Medium
-            case 3: cellsToFill = 20; break; // Hard
-            default: cellsToFill = 30;
-        }
-
-        Random rand = new Random();
-        int filled = 0;
-
-        while (filled < cellsToFill) {
-            int row = rand.nextInt(9);
-            int col = rand.nextInt(9);
-            int num = rand.nextInt(9) + 1;
-
-            if (board[row][col].getValue() == 0 && isValid(board, row, col, num)) {
-                board[row][col] = new SudokuCell(num, true); // ثابتة
-                filled++;
+        // تثبيت كل القيم مبدئياً
+        for (int i = 0; i < 9; i++) {
+            for (int j = 0; j < 9; j++) {
+                board[i][j].setFixed(true);
             }
         }
 
+        // عدد الخلايا المراد إزالتها حسب الصعوبة
+        int toRemove = switch (difficultyLevel) {
+            case 1 -> 31;
+            case 2 -> 51;
+            case 3 -> 61;
+            default -> 51;
+        };
+
+        removeCells(board, toRemove);
+
+        // فحص إذا كان للّغز حل وحيد
+        if (!hasUniqueSolution(board)) {
+            // إعادة المحاولة إذا لم يكن فريدًا
+            return generateBoard(difficultyLevel);
+        }
+
         return board;
+    }
+
+    private static boolean fillBoard(SudokuCell[][] board, int row, int col) {
+        if (row == 9) return true;
+        if (col == 9) return fillBoard(board, row + 1, 0);
+
+        int[] numbers = new Random().ints(1, 10).distinct().limit(9).toArray();
+
+        for (int num : numbers) {
+            if (isValid(board, row, col, num)) {
+                board[row][col].setValue(num);
+                if (fillBoard(board, row, col + 1)) return true;
+                board[row][col].setValue(0); // تراجع
+            }
+        }
+        return false;
+    }
+
+    private static void removeCells(SudokuCell[][] board, int countToRemove) {
+        Random rand = new Random();
+        int removed = 0;
+
+        while (removed < countToRemove) {
+            int row = rand.nextInt(9);
+            int col = rand.nextInt(9);
+
+            if (board[row][col].getValue() != 0) {
+                board[row][col].setValue(0);
+                board[row][col].setFixed(false);
+                removed++;
+            }
+        }
     }
 
     public static boolean isValid(SudokuCell[][] board, int row, int col, int num) {
@@ -56,5 +93,39 @@ public class SudokuGenerator {
         }
 
         return true;
+    }
+
+    // ✅ دوال فحص الحل الوحيد
+    private static boolean hasUniqueSolution(SudokuCell[][] board) {
+        solutionCount = 0;
+        solve(board, 0, 0);
+        return solutionCount == 1;
+    }
+
+    private static void solve(SudokuCell[][] board, int row, int col) {
+        if (row == 9) {
+            solutionCount++;
+            return;
+        }
+
+        if (col == 9) {
+            solve(board, row + 1, 0);
+            return;
+        }
+
+        if (board[row][col].getValue() != 0) {
+            solve(board, row, col + 1);
+            return;
+        }
+
+        for (int num = 1; num <= 9; num++) {
+            if (isValid(board, row, col, num)) {
+                board[row][col].setValue(num);
+                solve(board, row, col + 1);
+                board[row][col].setValue(0);
+
+                if (solutionCount > 1) return;
+            }
+        }
     }
 }
