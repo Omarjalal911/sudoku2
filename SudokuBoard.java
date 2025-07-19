@@ -10,8 +10,11 @@ public class SudokuBoard {
     public void play() {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("🎮 Let's start the game 🎮");
-        printBoard();  // ✅ طباعة أولية
+        int mistakeCount = 0;
+        long startTime = System.currentTimeMillis();
+
+        System.out.println(" Let's start the game ");
+        printBoard();  //  طباعة أولية
 
         while (true) {
             System.out.print("Enter row (0-8) or -1 to quit: ");
@@ -22,7 +25,7 @@ public class SudokuBoard {
             int col = scanner.nextInt();
 
             if (board[row][col].isFixed()) {
-                System.out.println("❌ This cell is fixed and cannot be changed.");
+                System.out.println(" This cell is fixed and cannot be changed.");
                 continue;
             }
 
@@ -30,10 +33,12 @@ public class SudokuBoard {
             int num = scanner.nextInt();
 
             if (placeNumber(row, col, num)) {
-                System.out.println("✅ Number placed at (" + row + ", " + col + ")");
-                printBoard();  // ✅ إعادة طباعة اللوحة بعد كل إدخال صحيح
+                System.out.println(" Number placed at (" + row + ", " + col + ")");
+                printBoard();  //  إعادة طباعة اللوحة بعد كل إدخال صحي
             } else {
-                System.out.println("❌ Invalid number at this position.");
+                System.out.println(" Invalid number at this position.");
+                mistakeCount++;
+                System.out.println(" Mistakes: " + mistakeCount);
             }
 
             if (isFull()) {
@@ -43,7 +48,12 @@ public class SudokuBoard {
             }
         }
 
-        System.out.println("👋 Game exited.");
+        long endTime = System.currentTimeMillis();
+        long elapsedSeconds = (endTime - startTime) / 1000;
+
+        System.out.println(" Time spent: " + formatTime(elapsedSeconds));
+        System.out.println(" Total mistakes: " + mistakeCount);
+        System.out.println(" Game exited.");
     }
 
     public boolean placeNumber(int row, int col, int num) {
@@ -60,9 +70,8 @@ public class SudokuBoard {
         return true;
     }
 
-    public int getValue(int row, int col) {
-        return board[row][col].getValue();
-    }
+
+
 
     public boolean isValid(int row, int col, int num) {
         for (int i = 0; i < 9; i++) {
@@ -93,20 +102,32 @@ public class SudokuBoard {
     }
 
     public void printBoard() {
-        System.out.println("\n Sudoku Board:");
+        System.out.println("\n    Sudoku Board:");
+        System.out.print("     ");
+        for (int col = 0; col < 9; col++) {
+            System.out.print(col + " ");
+            if ((col + 1) % 3 == 0 && col != 8) System.out.print("  ");
+        }
+        System.out.println();
+        System.out.println("   -------------------------");
+
         for (int i = 0; i < 9; i++) {
-            if (i % 3 == 0) System.out.println("-------------------------");
+            System.out.print(" " + i + " | ");
             for (int j = 0; j < 9; j++) {
-                if (j % 3 == 0) System.out.print("| ");
                 int value = board[i][j].getValue();
                 System.out.print((value == 0 ? "." : value) + " ");
+                if ((j + 1) % 3 == 0 && j != 8) System.out.print("| ");
             }
             System.out.println("|");
+            if ((i + 1) % 3 == 0 && i != 8)
+                System.out.println("   -------------------------");
         }
-        System.out.println("-------------------------");
+        System.out.println("   -------------------------");
     }
 
-    public SudokuCell[][] getBoard() {
-        return board;
+    private String formatTime(long seconds) {
+        long mins = seconds / 60;
+        long secs = seconds % 60;
+        return String.format("%02d:%02d", mins, secs);
     }
 }
