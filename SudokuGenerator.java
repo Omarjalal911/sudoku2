@@ -95,7 +95,7 @@ public class SudokuGenerator {
         return true;
     }
 
-    // ✅ دوال فحص الحل الوحيد
+    //  دوال فحص الحل الوحيد
     private static boolean hasUniqueSolution(SudokuCell[][] board) {
         solutionCount = 0;
         solve(board, 0, 0);
