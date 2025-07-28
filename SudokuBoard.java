@@ -17,24 +17,42 @@ public class SudokuBoard {
         printBoard();  //  طباعة أولية
 
         while (true) {
-            System.out.print("Enter row (0-8) or -1 to quit: ");
-            int row = scanner.nextInt();
-            if (row == -1) break;
+            int row;
+            while (true) {
+                System.out.print("Enter row (0-8) or -1 to quit: ");
+                row = scanner.nextInt();
+                if (row == -1) {
+                    System.out.println("Game exited.");
+                    return;
+                }
+                if (row >= 0 && row < 9) break;
+                System.out.println("Invalid row. Please enter a number between 0 and 8.");
+            }
 
-            System.out.print("Enter column (0-8): ");
-            int col = scanner.nextInt();
+            int col;
+            while (true) {
+                System.out.print("Enter column (0-8): ");
+                col = scanner.nextInt();
+                if (col >= 0 && col < 9) break;
+                System.out.println("Invalid column. Please enter a number between 0 and 8.");
+            }
 
             if (board[row][col].isFixed()) {
                 System.out.println(" This cell is fixed and cannot be changed.");
                 continue;
             }
 
-            System.out.print("Enter number (1-9): ");
-            int num = scanner.nextInt();
+            int num;
+            while (true) {
+                System.out.print("Enter number (1-9): ");
+                num = scanner.nextInt();
+                if (num >= 1 && num <= 9) break;
+                System.out.println("Invalid number. Please enter a number between 1 and 9.");
+            }
 
             if (placeNumber(row, col, num)) {
                 System.out.println(" Number placed at (" + row + ", " + col + ")");
-                printBoard();  //  إعادة طباعة اللوحة بعد كل إدخال صحي
+                printBoard();  //  إعادة طباعة اللوحة بعد كل إدخال صحيح
             } else {
                 System.out.println(" Invalid number at this position.");
                 mistakeCount++;
@@ -42,7 +60,7 @@ public class SudokuBoard {
             }
 
             if (isFull()) {
-                System.out.println("🎉 Congratulations! You completed the board.");
+                System.out.println(" Congratulations! You completed the board.");
                 printBoard();
                 break;
             }
@@ -69,9 +87,6 @@ public class SudokuBoard {
         board[row][col].setValue(num);
         return true;
     }
-
-
-
 
     public boolean isValid(int row, int col, int num) {
         for (int i = 0; i < 9; i++) {
@@ -102,7 +117,7 @@ public class SudokuBoard {
     }
 
     public void printBoard() {
-        System.out.println("\n    Sudoku Board:");
+        System.out.println("\n   Sudoku Board:");
         System.out.print("     ");
         for (int col = 0; col < 9; col++) {
             System.out.print(col + " ");
