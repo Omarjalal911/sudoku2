@@ -28,9 +28,9 @@ public class SudokuGenerator {
         // عدد الخلايا المراد إزالتها حسب الصعوبة
         int toRemove = switch (difficultyLevel) {
             case 1 -> 31;
-            case 2 -> 51;
-            case 3 -> 61;
-            default -> 51;
+            case 2 -> 41;
+            case 3 -> 51;
+            default -> 41;
         };
 
         removeCells(board, toRemove);
